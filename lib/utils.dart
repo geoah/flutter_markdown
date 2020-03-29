@@ -17,6 +17,7 @@ enum MarkdownTokenTypes {
   bold,
   italic,
   strikeThrough,
+  inlineCode,
   code
 }
 
@@ -29,6 +30,7 @@ void urlOpener(MarkdownToken span) async {
 }
 
 String stripFirstAndLast(String text) => text.substring(1, text.length - 1);
+Function stripFirstAndLastX(int n) => (String text) => text.substring(n, text.length - n).trim();
 
 String _baseCharacters = r'a-zA-Z0-9\/?.",!:<>' + r"'";
 
@@ -109,12 +111,22 @@ class MarkdownTokenConfig {
         suggestions = null,
         onTap = null;
 
-  MarkdownTokenConfig.code({TextStyle textStyle, StringCallbackFn postProcess})
-      : type = MarkdownTokenTypes.code,
-        regExp = RegExp(r'`[' + _baseCharacters + r'~_\-\*\s]*`'),
+  MarkdownTokenConfig.inlineCode({TextStyle textStyle, StringCallbackFn postProcess})
+      : type = MarkdownTokenTypes.inlineCode,
+        regExp = RegExp(r'`[^`\n\r]+`'),
         hintRegExp = null,
         textStyle = textStyle.copyWith(fontFamily: "Monospace"),
         postProcess = postProcess ?? stripFirstAndLast,
+        meta = null,
+        suggestions = null,
+        onTap = null;
+
+  MarkdownTokenConfig.code({TextStyle textStyle, StringCallbackFn postProcess})
+      : type = MarkdownTokenTypes.code,
+        regExp = RegExp(r'```[.\r\n\s\S]+```'),
+        hintRegExp = null,
+        textStyle = textStyle.copyWith(fontFamily: "Monospace"),
+        postProcess = postProcess ?? stripFirstAndLastX(3),
         meta = null,
         suggestions = null,
         onTap = null;
